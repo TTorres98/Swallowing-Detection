@@ -24,6 +24,7 @@ This repository provides a pipeline for detecting swallowing events in audio rec
 Ensure you have the following installed:
 
 -   Python 3.7 or later
+-   Anaconda
 
 ## Repository Structure
 
