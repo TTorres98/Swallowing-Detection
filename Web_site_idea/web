@@ -1,0 +1,28 @@
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <script type="text/javascript" src="jquery.min.js"></script>
+    <script type="text/javascript" src="plotly.min.js"></script>
+    <script type="text/javascript">
+    var update_plot = function() {
+        var audio = document.getElementById("audio").files[0];
+        var formData = new FormData();
+        formData.append("audio", audio);
+
+        $.getJSON({url: "http://127.0.0.1:5000/pitch_track", method: "POST",
+                   data: formData, processData: false, contentType: false,
+                   success: function(data){
+                       Plotly.newPlot("plot", [{ x: [...Array(data.length).keys()],
+                                                 y: data.map(function(x) { return x == 0.0 ? undefined : x; }),
+                                                 type: "lines" }]);}});
+    };
+    </script>
+</head>
+<body>
+<form onsubmit="update_plot(); return false;">
+    <input type="file" name="audio" id="audio" />
+    <input type="submit" value="Get pitch track" />
+    <div id="plot" style="width:1000px;height:600px;"></div>
+</form>
+</body>
+
+<!-- Possible idea for a web site linked to the code to process audio features from swallowing samples-->
