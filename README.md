@@ -1,36 +1,119 @@
-# Website Template
+# Swallowing Sound Analysis GUI
 
-This is an website designed to upload and analyse swallowing data files. The website is simple, responsive, and focuses on displaying essential information.
+An interactive desktop application for detecting and analysing swallowing events from digital stethoscope audio recordings. The tool compares a **Study group** (patients with swallowing disorders) against a **Control group** by automatically detecting swallow events, computing SPL-vs-frequency spectra, and exporting structured data for downstream analysis.
+
+---
+
+## Overview
+
+The GUI loads `.wav` stethoscope recordings alongside an Excel file of expert-annotated ground truth, lets you tune detection parameters in real time with visual feedback, and batch-exports SPL data across an entire dataset.
+
+```
+WAV recordings + Excel ground truth
+            │
+            ▼
+   ┌──────────────────────┐
+   │  audio_analysis_GUI  │
+   └──────────────────────┘
+            │
+      ┌─────┴──────┐
+      ▼            ▼
+ SPL_data.csv   parameter_database.csv
+```
+
+---
 
 ## Features
 
-* Load audio .wav file.
-* Visualization of features extracted
-* Download of the output
+- **Audio preprocessing** — 20–2000 Hz bandpass filter (4th-order Butterworth) with normalisation, designed for electronic stethoscope recordings.
+- **Swallow event detection** — RMS energy envelope with adaptive thresholding, Gaussian smoothing, peak finding (SciPy), configurable event merging, and energy-drop boundary detection.
+- **Ground truth management** — Loads annotated swallow counts and event durations from an Excel file with separate sheets for Control and Study groups; supports fuzzy filename matching.
+- **Interactive parameter tuning** — Real-time sliders and controls for all detection parameters (energy percentile, prominence, smoothing, duration limits, separation, boundary method) with instant visual feedback.
+- **Auto-tuning** — Automated parameter search to minimise detection error against ground truth.
+- **SPL vs frequency analysis** — Computes detailed SPL spectra for pre-swallow and post-swallow segments of each recording.
+- **Batch operations** — Navigate through an entire folder of audio files, store per-file parameters, accumulate SPL analyses, and export everything to CSV.
+- **Parameter persistence** — Save/load detection parameters per file; export and import full parameter databases (CSV).
 
-### Project structure
+---
 
-``` 
-/public
-  /index.html        # Main HTML file containing the structure of the webpage
-  /js
-    /script.js        # JavaScript file with functionality for language switching and smooth scrolling
-  /css
-    /styles.css        # CSS file containing styles for the webpage
+## Requirements
+
+### Python Version
+
+Python 3.11+
+
+### Dependencies
+
+```
+numpy
+pandas
+matplotlib
+librosa
+scipy
+tkinter          # usually bundled with Python
+openpyxl
 ```
 
-End with an example of getting some data out of the system or using it
-for a little demo
+Install with:
 
-## Files and folders
-Files can be loaded in the .Browse button
+```bash
+pip install numpy pandas matplotlib librosa scipy openpyxl
+```
 
-### Sample Tests
+---
 
-Explain what these tests test and why
+## Usage
 
-    Give an example
+```bash
+python audio_analysis_GUI.py
+```
 
-### Installation
+1. Click **Load Excel Ground Truth** and select the annotated Excel file (sheets: *Grupo de Controle*, *Grupo de Estudo*).
+2. Click **Load Audio Folder** and select the directory containing `.wav` recordings.
+3. Adjust detection parameters with the sliders until detected events match the ground truth count.
+4. Use **Add Current SPL to Storage** for each file, then **Export Batch SPL Data** to produce `SPL_data.csv`.
+5. Optionally use **Export Parameter Database** to save all per-file parameters to CSV for reproducibility.
 
-No need for a prior installation
+---
+
+## Input Data Format
+
+### Audio Files
+
+Standard `.wav` files recorded with a digital stethoscope. Filenames should encode the subject ID and bolus volume (e.g., `GC-F1-10ml.wav`, `GE-M3-20Ml.wav`).
+
+### Excel Ground Truth
+
+An `.xlsx` workbook with two sheets:
+
+| Sheet                | Key Columns                                                |
+|----------------------|------------------------------------------------------------|
+| Grupo de Controle    | `ID`, `Nr de Goles`, `1 evento` … `8 evento`              |
+| Grupo de Estudo      | `ID`, `Nr de deglutições`, `1 evento` … `5ºEvento`         |
+
+---
+
+## Output Files
+
+| File                       | Description                                                  |
+|----------------------------|--------------------------------------------------------------|
+| `SPL_data.csv`             | Per-frequency SPL values for every pre/post swallow segment  |
+| `parameter_database.csv`   | Detection parameters and results for each audio file         |
+
+---
+
+## Project Structure
+
+```
+.
+├── audio_analysis_GUI.py    # Interactive swallow detection GUI
+├── SPL_data.csv             # Generated by the GUI
+├── parameter_database.csv   # Generated by the GUI
+└── README.md
+```
+
+---
+
+## License
+
+This project is provided for academic and research purposes. Please contact the authors before reuse.
